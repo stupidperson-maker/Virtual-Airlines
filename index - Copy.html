@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirAsia GeoFS Virtual Airlines</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Poppins (Close to AirAsia branding) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'aa-red': '#ED1B24', // AirAsia Official Red
+                        'aa-dark': '#1a1a1a',
+                        'aa-grey': '#f1f1f1'
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- ========================================== -->
+    <!--      USER CONFIGURATION SECTION            -->
+    <!--      Paste your image links below          -->
+    <!-- ========================================== -->
+    <script>
+        const fleetImages = {
+            "a320_200": "",      // Paste link for A320-200 here
+            "a320_neo": "",      // Paste link for A320 Neo here
+            "a330_232": "",      // Paste link for A330-232 here
+            "a330_common": "",   // Paste link for A330-200/300 here
+            "a330_neo": ""       // Paste link for A330neo here
+        };
+    </script>
+    
+    <style>
+        .hero-pattern {
+            background-color: #ED1B24;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .plane-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Custom scrollbar for route lists if they get too long */
+        .route-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .route-list::-webkit-scrollbar-thumb {
+            background-color: #ED1B24;
+            border-radius: 3px;
+        }
+        .route-list::-webkit-scrollbar-track {
+            background-color: #f1f1f1;
+        }
+
+        /* Animation for page switching */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden-page {
+            display: none;
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800 bg-gray-50 flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center">
+                    <!-- Logo Area -->
+                    <a href="#home" class="nav-link flex-shrink-0 flex items-center gap-2">
+                        <div class="w-10 h-10 bg-aa-red rounded-full flex items-center justify-center text-white text-xl font-bold">
+                            <i class="fa-solid fa-plane-up"></i>
+                        </div>
+                        <span class="font-bold text-2xl tracking-tighter">AirAsia <span class="text-aa-red">GeoFS</span></span>
+                    </a>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link text-gray-700 hover:text-aa-red font-medium transition">Home</a>
+                    <a href="#about" class="nav-link text-gray-700 hover:text-aa-red font-medium transition">About</a>
+                    <a href="#news" class="nav-link text-gray-700 hover:text-aa-red font-medium transition">News</a>
+                    <a href="#fleet" class="nav-link text-gray-700 hover:text-aa-red font-medium transition">Fleet</a>
+                    <a href="#routes" class="nav-link text-gray-700 hover:text-aa-red font-medium transition">Routes</a>
+                    <a href="#apply" class="nav-link bg-aa-red text-white px-6 py-2 rounded-full font-bold hover:bg-red-700 transition shadow-lg transform hover:scale-105">
+                        Join Crew
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-700 hover:text-aa-red focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="nav-link block px-3 py-2 text-base font-medium text-gray-700 hover:text-aa-red hover:bg-gray-50 rounded-md">Home</a>
+                <a href="#about" class="nav-link block px-3 py-2 text-base font-medium text-gray-700 hover:text-aa-red hover:bg-gray-50 rounded-md">About</a>
+                <a href="#news" class="nav-link block px-3 py-2 text-base font-medium text-gray-700 hover:text-aa-red hover:bg-gray-50 rounded-md">News</a>
+                <a href="#fleet" class="nav-link block px-3 py-2 text-base font-medium text-gray-700 hover:text-aa-red hover:bg-gray-50 rounded-md">Fleet</a>
+                <a href="#routes" class="nav-link block px-3 py-2 text-base font-medium text-gray-700 hover:text-aa-red hover:bg-gray-50 rounded-md">Routes</a>
+                <a href="#apply" class="nav-link block px-3 py-2 text-base font-medium text-aa-red font-bold hover:bg-gray-50 rounded-md">Join Crew</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow">
+        
+        <!-- PAGE: HOME -->
+        <section id="home" class="page-section hero-pattern pt-32 pb-24 md:pt-48 md:pb-32 px-4 relative overflow-hidden min-h-screen">
+            <div class="max-w-7xl mx-auto relative z-10 text-center text-white">
+                <h1 class="text-4xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
+                    Now Everyone Can Fly... <br/><span class="text-white opacity-90 italic">Virtually.</span>
+                </h1>
+                <p class="text-lg md:text-2xl mb-10 max-w-2xl mx-auto font-light opacity-90">
+                    Welcome to the premier Low-Cost Carrier on GeoFS. Building the sharpest crew in the browser skies.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="#apply" class="nav-link bg-white text-aa-red px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-xl">
+                        Become a Pilot
+                    </a>
+                    <a href="https://discord.gg/KJBQ4NNM5" target="_blank" class="bg-[#5865F2] text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-[#4752c4] transition shadow-xl flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-discord"></i> Join Discord
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Decorative Elements -->
+            <div class="absolute -bottom-10 -right-10 opacity-10 text-white transform -rotate-12">
+                <i class="fa-solid fa-plane-departure text-[300px]"></i>
+            </div>
+        </section>
+
+        <!-- PAGE: ABOUT -->
+        <section id="about" class="page-section hidden-page pt-32 pb-20 bg-white min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Mission</h2>
+                    <div class="w-20 h-1 bg-aa-red mx-auto"></div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-12 items-start">
+                    <!-- For Pilots -->
+                    <div class="bg-gray-50 p-8 rounded-2xl shadow-sm hover:shadow-md transition">
+                        <div class="w-14 h-14 bg-aa-red rounded-lg flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fa-solid fa-user-pilot"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-aa-dark">For The Pilots</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">
+                            You aren't just pressing 'Autopilot'. You're managing schedules, climbing the ranks from Cadet to Senior Captain, and flying genuine AirAsia routes. 
+                        </p>
+                        <p class="text-gray-600 font-medium">
+                            We provide the livery, the dispatch, and the flight hours. You bring the passion for the A320 and a steady hand.
+                        </p>
+                    </div>
+
+                    <!-- For Passengers -->
+                    <div class="bg-gray-50 p-8 rounded-2xl shadow-sm hover:shadow-md transition">
+                        <div class="w-14 h-14 bg-aa-dark rounded-lg flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-aa-dark">For The Community</h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">
+                            Tired of trolls in the global chat? Come fly with the pros. Hop into our events, ride along in the jumpseat, or roleplay as our VIPs.
+                        </p>
+                        <p class="text-gray-600 font-medium">
+                            We provide the smoothest virtual service (and the best Discord memes). Don't fly default. Fly Red.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE: NEWS -->
+        <section id="news" class="page-section hidden-page pt-32 pb-20 bg-gray-100 min-h-screen">
+            <div class="max-w-5xl mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">News & Announcements</h2>
+                    <p class="text-gray-500">From the CEO's desk</p>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- CEO Update -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-aa-red">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">Leadership Update</h3>
+                            <span class="text-xs text-gray-400">Jan 2026</span>
+                        </div>
+                        <p class="text-gray-600 text-sm">
+                            Our CEO will be on temporary leave from <strong>23-01-2026 to 12-03-2026</strong> for Board Exams. 
+                            <strong>@Ransom</strong> has been appointed as the Acting CEO for this duration. Good luck to our CEO on their exams!
+                        </p>
+                    </div>
+
+                    <!-- Merger News -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-aa-red">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">AirAsia X Merger Complete</h3>
+                            <span class="text-xs text-gray-400">Jan 19, 2026</span>
+                        </div>
+                        <p class="text-gray-600 text-sm">
+                            @Verified Members: AirAsia X is officially merging into AirAsia Berhad starting today. All AirAsia X planes are now under the control of AirAsia Berhad.
+                            The Final Codeshare Airline List has also been released.
+                        </p>
+                    </div>
+
+                    <!-- Incident/Operational News -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-gray-400">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">Operational Updates</h3>
+                            <span class="text-xs text-gray-400">Jan 2026</span>
+                        </div>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
+                            <li><strong>Route Alert:</strong> AirAsia will suspend flying over Iranian airspace due to regional tensions.</li>
+                            <li><strong>New Route:</strong> Operations have begun for the Kuala Lumpur - Kertajati sector.</li>
+                            <li><strong>Condolences:</strong> We share our deepest condolences regarding the tragic loss of the Indonesian Marine Services ATR aircraft in the Java Sea.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE: FLEET -->
+        <section id="fleet" class="page-section hidden-page pt-32 pb-20 bg-white min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Fleet</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">A standardized fleet for maximum efficiency.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- A320-200 -->
+                    <div class="bg-gray-50 rounded-xl overflow-hidden shadow-lg plane-card border border-gray-100">
+                        <div class="h-40 bg-gray-200 flex items-center justify-center text-gray-400 fleet-img-placeholder" data-fleet-type="a320_200">
+                            <i class="fa-solid fa-plane text-5xl"></i>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-gray-900">A320-200</h3>
+                                <span class="bg-aa-red text-white text-xs px-2 py-1 rounded-md font-bold">35 Units</span>
+                            </div>
+                            <p class="text-gray-500 text-sm">The classic workhorse for our domestic and regional routes.</p>
+                        </div>
+                    </div>
+
+                    <!-- A320 Neo -->
+                    <div class="bg-gray-50 rounded-xl overflow-hidden shadow-lg plane-card border border-gray-100">
+                        <div class="h-40 bg-gray-200 flex items-center justify-center text-gray-400 fleet-img-placeholder" data-fleet-type="a320_neo">
+                            <i class="fa-solid fa-plane text-5xl"></i>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-gray-900">A320neo</h3>
+                                <span class="bg-aa-red text-white text-xs px-2 py-1 rounded-md font-bold">50 Units</span>
+                            </div>
+                            <p class="text-gray-500 text-sm">New Engine Option. Higher efficiency, lower noise footprint.</p>
+                        </div>
+                    </div>
+
+                    <!-- A330-232 -->
+                    <div class="bg-gray-50 rounded-xl overflow-hidden shadow-lg plane-card border border-gray-100">
+                        <div class="h-40 bg-gray-200 flex items-center justify-center text-gray-400 fleet-img-placeholder" data-fleet-type="a330_232">
+                            <i class="fa-solid fa-plane text-5xl"></i>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-gray-900">A330-232</h3>
+                                <span class="bg-blue-900 text-white text-xs px-2 py-1 rounded-md font-bold">17 Units</span>
+                            </div>
+                            <p class="text-gray-500 text-sm">Long haul variant powered by Pratt & Whitney engines.</p>
+                        </div>
+                    </div>
+
+                    <!-- A330-200/300 -->
+                    <div class="bg-gray-50 rounded-xl overflow-hidden shadow-lg plane-card border border-gray-100 lg:col-start-1 lg:ml-auto">
+                        <!-- Centering logic for bottom row in 3 col grid -->
+                        <div class="h-40 bg-gray-200 flex items-center justify-center text-gray-400 fleet-img-placeholder" data-fleet-type="a330_common">
+                            <i class="fa-solid fa-plane text-5xl"></i>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-gray-900">A330-200/300</h3>
+                                <span class="bg-blue-900 text-white text-xs px-2 py-1 rounded-md font-bold">25 Units</span>
+                            </div>
+                            <p class="text-gray-500 text-sm">The backbone of our medium-to-long haul high capacity network.</p>
+                        </div>
+                    </div>
+
+                    <!-- A330N -->
+                    <div class="bg-gray-50 rounded-xl overflow-hidden shadow-lg plane-card border border-gray-100 lg:col-start-2 lg:mr-auto">
+                        <div class="h-40 bg-gray-200 flex items-center justify-center text-gray-400 fleet-img-placeholder" data-fleet-type="a330_neo">
+                            <i class="fa-solid fa-plane text-5xl"></i>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-gray-900">A330neo</h3>
+                                <span class="bg-blue-900 text-white text-xs px-2 py-1 rounded-md font-bold">10 Units</span>
+                            </div>
+                            <p class="text-gray-500 text-sm">The latest generation widebody for the future of AirAsia.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE: ROUTES -->
+        <section id="routes" class="page-section hidden-page pt-32 pb-20 bg-aa-grey min-h-screen">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Destinations</h2>
+                    <p class="text-gray-600">Connecting Asia and the World.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Malaysia -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center gap-3 mb-4 border-b pb-2 border-red-100">
+                            <i class="fa-solid fa-flag text-aa-red"></i>
+                            <h3 class="font-bold text-lg text-aa-dark">Domestic (Malaysia)</h3>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-1 route-list max-h-60 overflow-y-auto">
+                            <li>Kuala Lumpur (Hub)</li>
+                            <li>Penang</li>
+                            <li>Langkawi</li>
+                            <li>Johor Bahru</li>
+                            <li>Kuching</li>
+                            <li>Miri</li>
+                            <li>Sibu</li>
+                            <li>Bintulu</li>
+                            <li>Kota Kinabalu</li>
+                            <li>Sandakan</li>
+                            <li>Tawau</li>
+                            <li>Labuan</li>
+                            <li>Alor Setar</li>
+                            <li>Kota Bharu</li>
+                            <li>Kuala Terengganu</li>
+                        </ul>
+                    </div>
+
+                    <!-- SE Asia -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center gap-3 mb-4 border-b pb-2 border-red-100">
+                            <i class="fa-solid fa-earth-asia text-aa-red"></i>
+                            <h3 class="font-bold text-lg text-aa-dark">Southeast Asia</h3>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-1 route-list max-h-60 overflow-y-auto">
+                            <li>Singapore</li>
+                            <li>Jakarta</li>
+                            <li>Bali (Denpasar)</li>
+                            <li>Medan</li>
+                            <li>Surabaya</li>
+                            <li>Yogyakarta</li>
+                            <li>Manila</li>
+                            <li>Cebu</li>
+                            <li>Bangkok (Don Mueang)</li>
+                            <li>Chiang Mai</li>
+                            <li>Phuket</li>
+                            <li>Ho Chi Minh City</li>
+                            <li>Hanoi</li>
+                            <li>Siem Reap</li>
+                            <li>Phnom Penh</li>
+                            <li>Vientiane</li>
+                        </ul>
+                    </div>
+
+                    <!-- South Asia -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center gap-3 mb-4 border-b pb-2 border-red-100">
+                            <i class="fa-solid fa-mosque text-aa-red"></i>
+                            <h3 class="font-bold text-lg text-aa-dark">South Asia</h3>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-1 route-list max-h-60 overflow-y-auto">
+                            <li>Delhi</li>
+                            <li>Mumbai</li>
+                            <li>Chennai</li>
+                            <li>Kolkata</li>
+                            <li>Ahmedabad</li>
+                            <li>Dhaka</li>
+                            <li>Kathmandu</li>
+                            <li>Male</li>
+                            <li>Colombo</li>
+                            <li>Tiruchirapalli</li>
+                            <li>Cochin</li>
+                            <li>Trivandrum</li>
+                            <li>Kozhikode</li>
+                        </ul>
+                    </div>
+
+                    <!-- East Asia -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center gap-3 mb-4 border-b pb-2 border-red-100">
+                            <i class="fa-solid fa-torii-gate text-aa-red"></i>
+                            <h3 class="font-bold text-lg text-aa-dark">East Asia</h3>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-1 route-list max-h-60 overflow-y-auto">
+                            <li>Hong Kong</li>
+                            <li>Macau</li>
+                            <li>Taipei</li>
+                            <li>Tokyo (Narita)</li>
+                            <li>Osaka</li>
+                            <li>Seoul</li>
+                            <li>Busan</li>
+                            <li>Shanghai</li>
+                            <li>Beijing</li>
+                            <li>Guangzhou</li>
+                        </ul>
+                    </div>
+
+                    <!-- Australia & Middle East -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center gap-3 mb-4 border-b pb-2 border-red-100">
+                            <i class="fa-solid fa-globe text-aa-red"></i>
+                            <h3 class="font-bold text-lg text-aa-dark">Aus & Middle East</h3>
+                        </div>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase mb-1">Australia</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>Sydney</li>
+                                    <li>Gold Coast</li>
+                                    <li>Adelaide</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase mb-1">Middle East</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>Abu Dhabi</li>
+                                    <li>Jeddah</li>
+                                    <li>Riyadh</li>
+                                    <li>Muscat</li>
+                                    <li>Tehran (Suspended)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coming Soon / Map -->
+                    <div class="bg-aa-dark rounded-xl shadow-sm p-6 text-white flex flex-col justify-center items-center text-center">
+                        <i class="fa-solid fa-map-location-dot text-4xl mb-4 text-aa-red"></i>
+                        <h3 class="font-bold text-lg">More Routes Coming</h3>
+                        <p class="text-sm text-gray-400 mt-2">We are constantly expanding our virtual network. Check Discord for the latest charts.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE: APPLY -->
+        <section id="apply" class="page-section hidden-page pt-32 pb-20 bg-aa-red text-white min-h-screen">
+            <div class="max-w-3xl mx-auto px-4">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold mb-4">Join the Team</h2>
+                    <p class="opacity-90">Ready to take off? Fill out the application below.</p>
+                </div>
+
+                <form class="bg-white rounded-2xl p-8 shadow-2xl text-gray-800 space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Callsign (e.g. AXM123)</label>
+                            <input type="text" placeholder="Desired Callsign" class="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-aa-red focus:ring-1 focus:ring-aa-red transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">GeoFS Username</label>
+                            <input type="text" placeholder="Your GeoFS Name" class="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-aa-red focus:ring-1 focus:ring-aa-red transition">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Experience Level</label>
+                        <select class="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-aa-red transition">
+                            <option>Student Pilot (New to GeoFS)</option>
+                            <option>First Officer (Some Experience)</option>
+                            <option>Captain (Veteran)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Why do you want to join?</label>
+                        <textarea rows="4" placeholder="Tell us a bit about yourself..." class="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-aa-red focus:ring-1 focus:ring-aa-red transition"></textarea>
+                    </div>
+
+                    <button type="button" class="w-full bg-aa-dark text-white font-bold py-4 rounded-lg hover:bg-black transition transform hover:-translate-y-1 shadow-lg">
+                        Submit Application
+                    </button>
+                    
+                    <p class="text-xs text-center text-gray-400">
+                        By submitting, you agree to our Virtual Airline rules. This is for a flight simulator game, not real employment.
+                    </p>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (Global) -->
+    <footer class="bg-aa-dark text-white py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                         <div class="w-8 h-8 bg-aa-red rounded-full flex items-center justify-center text-white text-sm font-bold">
+                            <i class="fa-solid fa-plane-up"></i>
+                        </div>
+                        <span class="font-bold text-xl">AirAsia GeoFS</span>
+                    </div>
+                    <p class="text-gray-400 text-sm max-w-sm">
+                        A virtual airline for the GeoFS Flight Simulator community. We are a non-profit fan group and are not affiliated with the real AirAsia Berhad.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <!-- Updated footer links to use router -->
+                        <li><a href="#home" class="nav-link hover:text-aa-red transition">Home</a></li>
+                        <li><a href="#about" class="nav-link hover:text-aa-red transition">About</a></li>
+                        <li><a href="#news" class="nav-link hover:text-aa-red transition">News</a></li>
+                        <li><a href="#routes" class="nav-link hover:text-aa-red transition">Destinations</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="https://discord.gg/KJBQ4NNM5" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-aa-red transition"><i class="fa-brands fa-discord"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-aa-red transition"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-aa-red transition"><i class="fa-brands fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+                <p>&copy; 2026 AirAsia GeoFS Virtual. All rights reserved.</p>
+                <p>Designed for GeoFS Pilots.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Router Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Select all navigation links (with class 'nav-link')
+            // Note: I added class 'nav-link' to standard nav items for cleaner selection,
+            // but also selecting by href helps catch any missed ones.
+            const links = document.querySelectorAll('a[href^="#"]');
+            const sections = document.querySelectorAll('.page-section');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+
+            // LOAD FLEET IMAGES
+            // Checks the config object at the top of the file
+            document.querySelectorAll('.fleet-img-placeholder').forEach(div => {
+                const type = div.getAttribute('data-fleet-type');
+                if (fleetImages[type] && fleetImages[type].trim() !== "") {
+                    div.innerHTML = `<img src="${fleetImages[type]}" class="w-full h-full object-cover" alt="${type}">`;
+                }
+            });
+
+            // Function to handle page switching
+            function showPage(targetId) {
+                // 1. Hide all sections
+                sections.forEach(section => {
+                    section.classList.add('hidden-page');
+                    section.classList.remove('fade-in'); // Reset animation
+                });
+
+                // 2. Find target section
+                const targetSection = document.getElementById(targetId);
+                
+                if (targetSection) {
+                    // 3. Show target section
+                    targetSection.classList.remove('hidden-page');
+                    targetSection.classList.add('fade-in');
+                    
+                    // 4. Scroll to top instantly
+                    window.scrollTo(0, 0);
+                }
+            }
+
+            // Mobile Menu Toggle
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Add click listeners to all internal links
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const href = link.getAttribute('href');
+                    
+                    // Only intercept internal hash links
+                    if (href.startsWith('#') && href.length > 1) {
+                        e.preventDefault();
+                        const targetId = href.substring(1); // remove '#'
+                        
+                        showPage(targetId);
+
+                        // Close mobile menu if open
+                        if (!mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+
+            // Initial Load Logic
+            // If user loads page with #news, go to news. Otherwise default to home.
+            const initialHash = window.location.hash.substring(1);
+            if (initialHash && document.getElementById(initialHash)) {
+                showPage(initialHash);
+            } else {
+                showPage('home');
+            }
+        });
+    </script>
+</body>
+</html>
